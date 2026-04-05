@@ -83,7 +83,7 @@
   opacity: 0; transform: translateY(14px) scale(0.97);
   transition: opacity .2s, transform .2s;
 }
-.panel.show { opacity: 1; transform: translateY(0) scale(1) }
+.panel.show { opacity: 1; transform: translateY(0) scale(1); z-index: 99999 }
 .panel.mini { height: auto !important; width: auto !important; min-width: 240px }
 .panel.mini .body, .panel.mini .foot { display: none !important }
 
