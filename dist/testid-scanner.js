@@ -416,14 +416,14 @@
       this.scan();
       requestAnimationFrame(() => {
         this.panelEl.classList.add("show");
-        this.toggleInspect();
+        this.toggleMinimize();
       });
     }
     /** Create the Shadow DOM host and inject styles + template */
     createHost() {
       const host = document.createElement("div");
       host.id = HOST_ID;
-      host.style.cssText = "all:initial!important;position:fixed!important;z-index:2147483640!important;top:0!important;left:0!important;width:0!important;height:0!important;pointer-events:none!important;";
+      host.style.cssText = "all:initial!important;position:fixed!important;z-index:2147483647!important;top:0!important;left:0!important;width:0!important;height:0!important;pointer-events:none!important;";
       document.documentElement.appendChild(host);
       this.shadow = host.attachShadow({ mode: "open" });
       const style = document.createElement("style");

@@ -39,7 +39,7 @@ export class Scanner {
     this.scan();
     requestAnimationFrame(() => {
       this.panelEl.classList.add('show');
-      this.toggleInspect();
+      this.toggleMinimize();
     });
   }
 
@@ -48,7 +48,7 @@ export class Scanner {
     const host = document.createElement('div');
     host.id = HOST_ID;
     host.style.cssText =
-      'all:initial!important;position:fixed!important;z-index:2147483640!important;' +
+      'all:initial!important;position:fixed!important;z-index:2147483647!important;' +
       'top:0!important;left:0!important;width:0!important;height:0!important;pointer-events:none!important;';
     document.documentElement.appendChild(host);
 
