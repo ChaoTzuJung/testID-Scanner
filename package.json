@@ -1,0 +1,13 @@
+{
+  "name": "testid-scanner",
+  "version": "1.1.0",
+  "description": "Scan interactive elements for data-testid coverage, like react-scan for test IDs",
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch"
+  },
+  "devDependencies": {
+    "tsup": "^8.4.0",
+    "typescript": "^5.7.0"
+  }
+}

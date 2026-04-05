@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>活動管理 — Fever Dashboard</title>
+
+<!-- ★★★ 只要加這一行就可以用 ★★★ -->
+<script src="../dist/testid-scanner.js"></script>
+
+<style>
+  :root { --page-bg: #f5f5f7; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--page-bg); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color: #1d1d1f; }
+
+  .shell { display: flex; min-height: 100vh; }
+
+  /* Sidebar */
+  .sidebar { width: 72px; background: #fff; border-right: 1px solid #e5e5ea; display: flex; flex-direction: column; align-items: center; padding: 16px 0; gap: 8px; flex-shrink: 0; }
+  .si { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #86868b; transition: background 0.15s; }
+  .si:hover { background: #f0f0f5; }
+  .si.on { background: #007aff; color: #fff; }
+  .si svg { width: 22px; height: 22px; }
+
+  /* Main */
+  .main { flex: 1; display: flex; flex-direction: column; }
+
+  /* Topbar */
+  .topbar { height: 56px; background: #fff; border-bottom: 1px solid #e5e5ea; display: flex; align-items: center; padding: 0 24px; gap: 16px; }
+  .topbar-title { font-size: 15px; font-weight: 600; }
+  .topbar-bc { font-size: 13px; color: #86868b; }
+  .topbar-r { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+  .tb { padding: 7px 16px; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer; border: 1px solid #d1d1d6; background: #fff; color: #1d1d1f; }
+  .tb:hover { background: #f5f5f7; }
+  .tb.p { background: #007aff; color: #fff; border-color: #007aff; }
+  .tb.p:hover { background: #0066d6; }
+  .avatar { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, #667eea, #764ba2); }
+
+  /* Content */
+  .content { flex: 1; padding: 24px; overflow-y: auto; padding-bottom: 200px; }
+  .sec-title { font-size: 18px; font-weight: 700; margin-bottom: 16px; }
+
+  /* Cards */
+  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; margin-bottom: 32px; }
+  .card { background: #fff; border-radius: 14px; border: 1px solid #e5e5ea; overflow: hidden; cursor: pointer; transition: box-shadow 0.2s; }
+  .card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+  .card-img { height: 130px; position: relative; }
+  .card-img.a { background: linear-gradient(135deg, #ffd89b, #f7971e); }
+  .card-img.b { background: linear-gradient(135deg, #a1c4fd, #c2e9fb); }
+  .card-img.c { background: linear-gradient(135deg, #d4fc79, #96e6a1); }
+  .card-img.d { background: linear-gradient(135deg, #fbc2eb, #a6c1ee); }
+  .card-badge { position: absolute; top: 12px; right: 12px; padding: 4px 10px; background: rgba(0,0,0,0.45); color: #fff; border-radius: 6px; font-size: 11px; font-weight: 600; }
+  .card-body { padding: 14px 16px; }
+  .card-body h3 { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+  .card-body p { font-size: 13px; color: #86868b; line-height: 1.5; }
+  .card-foot { padding: 10px 16px; border-top: 1px solid #f0f0f5; display: flex; align-items: center; justify-content: space-between; }
+  .card-foot span { font-size: 12px; color: #86868b; }
+  .card-fb { padding: 5px 12px; background: #f0f0f5; border: none; border-radius: 6px; font-size: 12px; color: #1d1d1f; cursor: pointer; font-weight: 500; }
+
+  /* Table */
+  table { width: 100%; background: #fff; border-radius: 14px; border: 1px solid #e5e5ea; overflow: hidden; border-collapse: collapse; margin-bottom: 32px; }
+  th, td { padding: 12px 16px; text-align: left; font-size: 13px; border-bottom: 1px solid #f0f0f5; }
+  th { font-weight: 600; background: #fafafa; color: #86868b; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: #f8f8fc; }
+  .st { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+  .st.ok { background: #dcfce7; color: #166534; }
+  .st.pn { background: #fef3c7; color: #92400e; }
+  .st.off { background: #fee2e2; color: #991b1b; }
+
+  /* Form */
+  .form-wrap { background: #fff; border-radius: 14px; border: 1px solid #e5e5ea; padding: 24px; }
+  .fg { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px; }
+  .fi { display: flex; flex-direction: column; gap: 6px; }
+  .fi.full { grid-column: 1 / -1; }
+  .fi label { font-size: 13px; font-weight: 500; color: #48484a; }
+  .fi input, .fi select, .fi textarea { padding: 9px 14px; border: 1px solid #d1d1d6; border-radius: 8px; font-size: 14px; outline: none; background: #fff; font-family: inherit; }
+  .fi input:focus, .fi select:focus { border-color: #007aff; box-shadow: 0 0 0 3px rgba(0,122,255,0.12); }
+  .fi textarea { resize: vertical; min-height: 80px; }
+  .factions { grid-column: 1 / -1; display: flex; gap: 12px; justify-content: flex-end; margin-top: 8px; }
+  .factions button { padding: 9px 20px; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; border: none; }
+  .factions .fc { background: #f0f0f5; color: #1d1d1f; }
+  .factions .fs { background: #007aff; color: #fff; }
+</style>
+</head>
+<body>
+
+<div class="shell">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="si on" data-testid="sidebar-dashboard">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+    </div>
+    <div class="si" data-testid="sidebar-analytics">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+    </div>
+    <div class="si">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+    </div>
+    <div class="si" data-testid="sidebar-settings">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+    </div>
+  </aside>
+
+  <div class="main">
+    <!-- Topbar -->
+    <header class="topbar">
+      <span class="topbar-title">活動管理</span>
+      <span class="topbar-bc">/ 行銷活動 / E2E-PointsRedeem</span>
+      <div class="topbar-r">
+        <button class="tb" data-testid="btn-test">測試</button>
+        <button class="tb p" data-testid="btn-publish">上線</button>
+        <div class="avatar" data-testid="user-avatar"></div>
+      </div>
+    </header>
+
+    <!-- Content -->
+    <div class="content">
+
+      <!-- Campaign cards -->
+      <h2 class="sec-title" data-testid="section-campaigns">活動列表</h2>
+      <div class="cards">
+        <div class="card" data-testid="card-campaign-1">
+          <div class="card-img a"><div class="card-badge">進行中</div></div>
+          <div class="card-body">
+            <h3>春季點數兌換</h3>
+            <p>會員可使用點數兌換限定商品，活動期間加碼 2 倍回饋。</p>
+          </div>
+          <div class="card-foot">
+            <span>2026/03/01 – 04/30</span>
+            <button class="card-fb" data-testid="btn-edit-1">編輯</button>
+          </div>
+        </div>
+
+        <div class="card" data-testid="card-campaign-2">
+          <div class="card-img b"><div class="card-badge">排程中</div></div>
+          <div class="card-body">
+            <h3>會員日快閃</h3>
+            <p>限時 24 小時，精選商品 5 折起。</p>
+          </div>
+          <div class="card-foot">
+            <span>2026/05/15</span>
+            <button class="card-fb">編輯</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-img c"><div class="card-badge">草稿</div></div>
+          <div class="card-body">
+            <h3>暑期抽獎</h3>
+            <p>消費滿額即可參加大獎抽獎活動。</p>
+          </div>
+          <div class="card-foot">
+            <span>尚未排程</span>
+            <button class="card-fb" data-testid="btn-edit-3">編輯</button>
+          </div>
+        </div>
+
+        <div class="card" data-testid="card-campaign-4">
+          <div class="card-img d"><div class="card-badge">已結束</div></div>
+          <div class="card-body">
+            <h3>年末感恩祭</h3>
+            <p>全站商品享有最高 70% 折扣。</p>
+          </div>
+          <div class="card-foot">
+            <span>2025/12/20 – 12/31</span>
+            <button class="card-fb">查看報告</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Prize table -->
+      <h2 class="sec-title">獎品管理</h2>
+      <table data-testid="prize-table">
+        <thead>
+          <tr>
+            <th>獎品名稱</th>
+            <th>類型</th>
+            <th>庫存</th>
+            <th>狀態</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr data-testid="prize-row-1">
+            <td>AirPods Pro</td>
+            <td>實體商品</td>
+            <td>50</td>
+            <td><span class="st ok">啟用</span></td>
+            <td><button class="card-fb" data-testid="btn-edit-prize-1">編輯</button></td>
+          </tr>
+          <tr>
+            <td>$100 折價券</td>
+            <td>優惠券</td>
+            <td>500</td>
+            <td><span class="st ok">啟用</span></td>
+            <td><button class="card-fb">編輯</button></td>
+          </tr>
+          <tr data-testid="prize-row-3">
+            <td>VIP 會員資格</td>
+            <td>權益</td>
+            <td>100</td>
+            <td><span class="st pn">待審核</span></td>
+            <td><button class="card-fb" data-testid="btn-edit-prize-3">編輯</button></td>
+          </tr>
+          <tr>
+            <td>限定公仔</td>
+            <td>實體商品</td>
+            <td>0</td>
+            <td><span class="st off">已停用</span></td>
+            <td><button class="card-fb">編輯</button></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Form -->
+      <div class="form-wrap">
+        <h2 class="sec-title">新增獎品</h2>
+        <div class="fg">
+          <div class="fi">
+            <label>獎品名稱</label>
+            <input type="text" placeholder="例：AirPods Pro" data-testid="input-prize-name" />
+          </div>
+          <div class="fi">
+            <label>類型</label>
+            <select data-testid="select-prize-type">
+              <option>實體商品</option>
+              <option>優惠券</option>
+              <option>權益</option>
+            </select>
+          </div>
+          <div class="fi">
+            <label>庫存數量</label>
+            <input type="number" placeholder="0" data-testid="input-prize-stock" />
+          </div>
+          <div class="fi">
+            <label>兌換所需點數</label>
+            <input type="number" placeholder="0" />
+          </div>
+          <div class="fi full">
+            <label>描述</label>
+            <textarea placeholder="請輸入獎品描述..." data-testid="input-prize-desc"></textarea>
+          </div>
+          <div class="factions">
+            <button class="fc">取消</button>
+            <button class="fs" data-testid="btn-submit-prize">新增獎品</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
